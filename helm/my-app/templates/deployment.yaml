@@ -21,3 +21,6 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.container.port }}
+          env:
+            - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+              value: "{{ .Values.appInsights.connectionString }}"
