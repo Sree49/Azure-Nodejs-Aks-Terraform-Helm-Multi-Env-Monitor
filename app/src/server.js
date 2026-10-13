@@ -7,7 +7,16 @@ appInsights.setup(process.env.APPLICATIONINSIGHTS_CONNECTION_STRING)
   .setAutoCollectExceptions(true)
   .setAutoCollectDependencies(true)
   .setAutoCollectConsole(true)
+  .setSendLiveMetrics(true)
   .start();
+
+const client = appInsights.defaultClient;
+
+client.trackTrace({
+  message: "AKS telemetry test"
+});
+
+client.flush();
 
 const express = require('express');
 const app = express();
