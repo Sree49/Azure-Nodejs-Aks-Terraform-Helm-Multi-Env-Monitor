@@ -6,3 +6,4 @@ variable "subnet_id" {}
 variable "vm_size" {}
 variable "node_count" {}
 variable "acr_id" {}
+variable "law-id" {}
