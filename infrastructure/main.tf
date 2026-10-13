@@ -35,3 +35,10 @@ module "aks" {
   acr_id              = module.acr.id
 }
 
+module "azure-monitor" {
+  source              = "./modules/azure-monitor"
+  project_name        = var.project_name
+  environment         = var.environment
+  location            = module.resource_group.location
+  resource_group_name = module.resource_group.name
+}
