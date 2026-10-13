@@ -54,21 +54,18 @@ steps:
       environmentServiceNameAzureRM: '$(azureServiceConnection)'
       commandOptions: '-var-file="environments/${{ parameters.environment }}.tfvars" -auto-approve'
 
-
-    
-    - task: AzureCLI@2
-    displayName: 'Get App Insights Connection String'
+  - task: AzureCLI@2
+    displayName: Get App Insights Connection String
     inputs:
       azureSubscription: '$(azureServiceConnection)'
       scriptType: bash
       workingDirectory: '$(System.DefaultWorkingDirectory)/infrastructure'
       scriptLocation: inlineScript
       inlineScript: |
-        # Force extraction of sensitive value from state
-        APPINSIGHTS=$(terraform output -json appinsights_connection_string | tr -d '"')
-        
-        # Set it as a secret variable so it isn't dumped to logs
-        echo "##vso[task.setvariable variable=appInsightsConnectionString;issecret=true]$APPINSIGHTS" 
+
+        APPINSIGHTS=$(terraform output -raw appinsights_connection_string)
+
+        echo "##vso[task.setvariable variable=appInsightsConnectionString]$APPINSIGHTS" 
 
   # 5. Build, tag, and push the application container directly to the freshly live ACR
   - task: AzureCLI@2
@@ -106,20 +103,21 @@ steps:
           --overwrite-existing
 
   # 7. Roll out your application deployment utilizing the native Helm task engine tool wrapper
-    # 6. Deploy / Upgrade Application Helm Release
   - task: HelmDeploy@0
-    displayName: 'Upgrade Application Release via Helm (${{ parameters.environment }})'
+    displayName: 'Execute Helm Release Upgrade (${{ parameters.environment }})'
     inputs:
-      connectionType: 'Kubernetes Service Connection'
-      # Ensure you have a service connection matching your target AKS cluster name
-      kubernetesServiceConnection: '${{ parameters.projectPrefix }}-${{ parameters.environment }}-aks-connection'
-      namespace: '${{ parameters.environment }}'
+      connectionType: 'Azure Resource Manager'
+      azureSubscription: '$(azureServiceConnection)'
+      azureResourceGroup: 'rg-${{ parameters.projectPrefix }}-${{ parameters.environment }}'
+      kubernetesCluster: 'aks-${{ parameters.projectPrefix }}-${{ parameters.environment }}'
       command: 'upgrade'
       chartType: 'FilePath'
-      chartPath: '$(System.DefaultWorkingDirectory)/charts/my-app' # Update if chart path is different
-      releaseName: '$(imageRepository)-deployment'
-      valueFile: '$(System.DefaultWorkingDirectory)/charts/my-app/values-${{ parameters.environment }}.yaml'
+      chartPath: '$(System.DefaultWorkingDirectory)/helm/my-app'
+      releaseName: 'my-app'
+      arguments: >
+        --install -f $(System.DefaultWorkingDirectory)/helm/my-app/values.${{ parameters.environment }}.yaml
+        --set-string appInsights.connectionString="$(appInsightsConnectionString)"
+      waitForExecution: true
       overrideValues: |
-        env.APPLICATIONINSIGHTS_CONNECTION_STRING=$(appInsightsConnectionString)
-        image.repository=$(acr_login_server)/$(imageRepository)
+        image.repository=acr134${{ parameters.projectPrefix }}${{ parameters.environment }}.azurecr.io/${{ parameters.imageRepository }}
         image.tag=${{ parameters.imageTag }}
