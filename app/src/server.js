@@ -1,4 +1,8 @@
+process.env.APPLICATION_INSIGHTS_ENABLE_DEBUG_LOGS = "true";
+process.env.APPLICATION_INSIGHTS_DISABLE_WARNING_LOGS = "false";
 const appInsights = require("applicationinsights");
+
+
 
 // Log connection string presence
 console.log(
