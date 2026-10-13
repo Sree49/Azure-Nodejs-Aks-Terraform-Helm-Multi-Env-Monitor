@@ -1,17 +1,6 @@
-const express = require('express');
-const app = express();
-const port = 3000;
-
-app.get('/', (req, res) => {
-  res.send('Hello World from my-app!');
-});
-
-app.listen(port, () => {
-  console.log(`App listening at http://localhost:${port}`);
-});
-
 const appInsights = require('applicationinsights');
 
+// Initialize Azure Application Insights
 appInsights.setup(process.env.APPLICATIONINSIGHTS_CONNECTION_STRING)
   .setAutoCollectRequests(true)
   .setAutoCollectPerformance(true)
@@ -23,8 +12,16 @@ appInsights.setup(process.env.APPLICATIONINSIGHTS_CONNECTION_STRING)
 const express = require('express');
 const app = express();
 
+const port = process.env.PORT || 3000;
+
 app.get('/', (req, res) => {
-    res.send('Node.js App Running');
+  res.send('Hello World from my-app!');
 });
 
-app.listen(3000);
+app.get('/health', (req, res) => {
+  res.status(200).send('Healthy');
+});
+
+app.listen(port, () => {
+  console.log(`App listening at http://localhost:${port}`);
+});
