@@ -16,6 +16,9 @@ resource "azurerm_kubernetes_cluster" "aks" {
     network_plugin    = "azure"
     load_balancer_sku = "standard"
   }
+  oms_agent {
+    log_analytics_workspace_id =var.law-id
+  }
 }
 
 data "azurerm_client_config" "current" {}
