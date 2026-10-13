@@ -113,7 +113,9 @@ steps:
       chartType: 'FilePath'
       chartPath: '$(System.DefaultWorkingDirectory)/helm/my-app'
       releaseName: 'my-app'
-      arguments: '--install -f $(System.DefaultWorkingDirectory)/helm/my-app/values.${{ parameters.environment }}.yaml'
+      arguments: >
+        --install -f $(System.DefaultWorkingDirectory)/helm/my-app/values.${{ parameters.environment }}.yaml
+        --set-string appInsights.connectionString="$(appInsightsConnectionString)"
       waitForExecution: true
       overrideValues: |
         image.repository=acr134${{ parameters.projectPrefix }}${{ parameters.environment }}.azurecr.io/${{ parameters.imageRepository }}
