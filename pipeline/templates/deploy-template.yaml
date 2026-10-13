@@ -53,7 +53,19 @@ steps:
       workingDirectory: '$(System.DefaultWorkingDirectory)/infrastructure'
       environmentServiceNameAzureRM: '$(azureServiceConnection)'
       commandOptions: '-var-file="environments/${{ parameters.environment }}.tfvars" -auto-approve'
-   
+
+  - task: AzureCLI@2
+    displayName: Get App Insights Connection String
+    inputs:
+      azureSubscription: '$(azureServiceConnection)'
+      scriptType: bash
+      scriptLocation: inlineScript
+      inlineScript: |
+
+        APPINSIGHTS=$(terraform output -raw appinsights_connection_string)
+
+        echo "##vso[task.setvariable variable=appInsightsConnectionString;isOutput=true]$APPINSIGHTS" 
+
   # 5. Build, tag, and push the application container directly to the freshly live ACR
   - task: AzureCLI@2
     displayName: 'Compile and Push Docker Image to ACR (${{ parameters.environment }})'
