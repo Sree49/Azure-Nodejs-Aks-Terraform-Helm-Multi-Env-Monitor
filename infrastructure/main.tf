@@ -33,6 +33,7 @@ module "aks" {
   vm_size             = var.vm_size
   node_count          = var.node_count
   acr_id              = module.acr.id
+  law-id              = module.azure-monitor.law-id
 }
 
 module "azure-monitor" {
