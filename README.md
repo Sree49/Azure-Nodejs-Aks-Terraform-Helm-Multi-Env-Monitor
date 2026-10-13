@@ -49,7 +49,13 @@ Pipeline Stage approval: \
 <img src="./images/approval.png" alt="approval" width="400"> 
 
 Monitor: \
-Provision App insight, log analytics workspace using terraform. Output App insight connection string in pipeline as variable.
+• Step 1: Provision Application Insights and a Log Analytics Workspace using Terraform, then output the Application Insights connection string to the pipeline as a variable. \
+• Step 2: Add the initialization code to the top of your server.js file. \
+• Step 3: Add the Application Insights variable placeholder to the Helm chart variables file (values.yaml). \
+• Step 4: Inject the connection string variable into the Helm deploy task at runtime. \
+<img src="./images/monitor-live.png" alt="monitor-live" width="400">  \
+<img src="./images/monitor-logs.png" alt="monitor-logs" width="400"> 
+
 
 APP:
 
