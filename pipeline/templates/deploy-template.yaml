@@ -106,21 +106,20 @@ steps:
           --overwrite-existing
 
   # 7. Roll out your application deployment utilizing the native Helm task engine tool wrapper
+    # 6. Deploy / Upgrade Application Helm Release
   - task: HelmDeploy@0
-    displayName: 'Execute Helm Release Upgrade (${{ parameters.environment }})'
+    displayName: 'Upgrade Application Release via Helm (${{ parameters.environment }})'
     inputs:
-      connectionType: 'Azure Resource Manager'
-      azureSubscription: '$(azureServiceConnection)'
-      azureResourceGroup: 'rg-${{ parameters.projectPrefix }}-${{ parameters.environment }}'
-      kubernetesCluster: 'aks-${{ parameters.projectPrefix }}-${{ parameters.environment }}'
+      connectionType: 'Kubernetes Service Connection'
+      # Ensure you have a service connection matching your target AKS cluster name
+      kubernetesServiceConnection: '${{ parameters.projectPrefix }}-${{ parameters.environment }}-aks-connection'
+      namespace: '${{ parameters.environment }}'
       command: 'upgrade'
       chartType: 'FilePath'
-      chartPath: '$(System.DefaultWorkingDirectory)/helm/my-app'
-      releaseName: 'my-app'
-      arguments: >
-        --install -f $(System.DefaultWorkingDirectory)/helm/my-app/values.${{ parameters.environment }}.yaml
-        --set-string appInsights.connectionString="$(appInsightsConnectionString)"
-      waitForExecution: true
+      chartPath: '$(System.DefaultWorkingDirectory)/charts/my-app' # Update if chart path is different
+      releaseName: '$(imageRepository)-deployment'
+      valueFile: '$(System.DefaultWorkingDirectory)/charts/my-app/values-${{ parameters.environment }}.yaml'
       overrideValues: |
-        image.repository=acr134${{ parameters.projectPrefix }}${{ parameters.environment }}.azurecr.io/${{ parameters.imageRepository }}
+        env.APPLICATIONINSIGHTS_CONNECTION_STRING=$(appInsightsConnectionString)
+        image.repository=$(acr_login_server)/$(imageRepository)
         image.tag=${{ parameters.imageTag }}
