@@ -1,4 +1,4 @@
-Node JS Project deployed to Kubernetes using Helm Charts to multi environment. Deployed infrastructure using Terraform.
+Node JS Project deployed to Kubernetes using Helm Charts to multi environment. Deployed infrastructure using Terraform. Monitoring using App insight.
 
 App Code: \
 app folder: package.json file, Dockerfile, src\server.js file. 
